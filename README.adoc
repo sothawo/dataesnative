@@ -1,0 +1,146 @@
+= Demo application for Spring Data Elasticsearch with Spring Native
+
+This project was created with the Spring initializer with _web_, _spring data elasticsearch_ and _native_ support.
+
+== Special Spring Data classes that make problems
+
+I implemented a custom repository fragment for Spring Data Elasticsearch by defining the interface 
+`PersonCustomRepository` and providing the implementation in `PersonCustomRepositoryImpl`.
+
+When runnin the application locally with plain java it all works as expected, the custom implementation is found and 
+used. When running the native application I get this error:
+
+[source,shell]
+----
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2021-03-19 14:19:16.045 ERROR 90007 --- [           main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'personRepositoryController' defined in class path resource [com/sothawo/dataesnative/PersonRepositoryController.class]: Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'personRepository' defined in com.sothawo.dataesnative.PersonRepository defined in @EnableElasticsearchRepositories declared on ElasticsearchRepositoriesRegistrar.EnableElasticsearchRepositoriesConfiguration: Invocation of init method failed; nested exception is org.springframework.data.mapping.PropertyReferenceException: No property withLastNameCounts found for type String! Traversed path: Person.firstName.
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:800) ~[na:na]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:229) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1354) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1204) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:564) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:524) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335) ~[na:na]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:208) ~[na:na]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:944) ~[na:na]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:918) ~[na:na]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:583) ~[na:na]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:144) ~[na:na]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:769) ~[com.sothawo.dataesnative.dataesnativeapplication:2.4.4]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:761) ~[com.sothawo.dataesnative.dataesnativeapplication:2.4.4]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:426) ~[com.sothawo.dataesnative.dataesnativeapplication:2.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:326) ~[com.sothawo.dataesnative.dataesnativeapplication:2.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1313) ~[com.sothawo.dataesnative.dataesnativeapplication:2.4.4]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1302) ~[com.sothawo.dataesnative.dataesnativeapplication:2.4.4]
+	at com.sothawo.dataesnative.DataesnativeApplication.main(DataesnativeApplication.java:12) ~[com.sothawo.dataesnative.dataesnativeapplication:0.0.1-SNAPSHOT]
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'personRepository' defined in com.sothawo.dataesnative.PersonRepository defined in @EnableElasticsearchRepositories declared on ElasticsearchRepositoriesRegistrar.EnableElasticsearchRepositoriesConfiguration: Invocation of init method failed; nested exception is org.springframework.data.mapping.PropertyReferenceException: No property withLastNameCounts found for type String! Traversed path: Person.firstName.
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1786) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:602) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:524) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335) ~[na:na]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:208) ~[na:na]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:276) ~[na:na]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1380) ~[na:na]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1300) ~[na:na]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:887) ~[na:na]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[na:na]
+	... 20 common frames omitted
+Caused by: org.springframework.data.mapping.PropertyReferenceException: No property withLastNameCounts found for type String! Traversed path: Person.firstName.
+	at org.springframework.data.mapping.PropertyPath.<init>(PropertyPath.java:90) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.create(PropertyPath.java:437) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.create(PropertyPath.java:413) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.create(PropertyPath.java:447) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.create(PropertyPath.java:471) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.create(PropertyPath.java:471) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.create(PropertyPath.java:471) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.create(PropertyPath.java:471) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.create(PropertyPath.java:413) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.lambda$from$0(PropertyPath.java:366) ~[na:na]
+	at java.util.concurrent.ConcurrentMap.computeIfAbsent(ConcurrentMap.java:330) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.from(PropertyPath.java:348) ~[na:na]
+	at org.springframework.data.mapping.PropertyPath.from(PropertyPath.java:331) ~[na:na]
+	at org.springframework.data.repository.query.parser.Part.<init>(Part.java:81) ~[na:na]
+	at org.springframework.data.repository.query.parser.PartTree$OrPart.lambda$new$0(PartTree.java:249) ~[na:na]
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:195) ~[na:na]
+	at java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:177) ~[na:na]
+	at java.util.Spliterators$ArraySpliterator.forEachRemaining(Spliterators.java:948) ~[na:na]
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:484) ~[na:na]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:474) ~[na:na]
+	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:913) ~[na:na]
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[na:na]
+	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:578) ~[na:na]
+	at org.springframework.data.repository.query.parser.PartTree$OrPart.<init>(PartTree.java:250) ~[na:na]
+	at org.springframework.data.repository.query.parser.PartTree$Predicate.lambda$new$0(PartTree.java:383) ~[na:na]
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:195) ~[na:na]
+	at java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:177) ~[na:na]
+	at java.util.Spliterators$ArraySpliterator.forEachRemaining(Spliterators.java:948) ~[na:na]
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:484) ~[na:na]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:474) ~[na:na]
+	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:913) ~[na:na]
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[na:na]
+	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:578) ~[na:na]
+	at org.springframework.data.repository.query.parser.PartTree$Predicate.<init>(PartTree.java:384) ~[na:na]
+	at org.springframework.data.repository.query.parser.PartTree.<init>(PartTree.java:95) ~[na:na]
+	at org.springframework.data.elasticsearch.repository.query.ElasticsearchPartQuery.<init>(ElasticsearchPartQuery.java:57) ~[na:na]
+	at org.springframework.data.elasticsearch.repository.support.ElasticsearchRepositoryFactory$ElasticsearchQueryLookupStrategy.resolveQuery(ElasticsearchRepositoryFactory.java:117) ~[na:na]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.lookupQuery(QueryExecutorMethodInterceptor.java:100) ~[na:na]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.lambda$mapMethodsToQuery$1(QueryExecutorMethodInterceptor.java:93) ~[na:na]
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:195) ~[na:na]
+	at java.util.Iterator.forEachRemaining(Iterator.java:133) ~[na:na]
+	at java.util.Collections$UnmodifiableCollection$1.forEachRemaining(Collections.java:1054) ~[na:na]
+	at java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1801) ~[na:na]
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:484) ~[na:na]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:474) ~[na:na]
+	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:913) ~[na:na]
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[na:na]
+	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:578) ~[na:na]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.mapMethodsToQuery(QueryExecutorMethodInterceptor.java:95) ~[na:na]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.lambda$new$0(QueryExecutorMethodInterceptor.java:85) ~[na:na]
+	at java.util.Optional.map(Optional.java:265) ~[na:na]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.<init>(QueryExecutorMethodInterceptor.java:85) ~[na:na]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport.getRepository(RepositoryFactorySupport.java:303) ~[na:na]
+	at org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport.lambda$afterPropertiesSet$5(RepositoryFactoryBeanSupport.java:323) ~[com.sothawo.dataesnative.dataesnativeapplication:2.4.6]
+	at org.springframework.data.util.Lazy.getNullable(Lazy.java:230) ~[na:na]
+	at org.springframework.data.util.Lazy.get(Lazy.java:114) ~[na:na]
+	at org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport.afterPropertiesSet(RepositoryFactoryBeanSupport.java:329) ~[com.sothawo.dataesnative.dataesnativeapplication:2.4.6]
+	at org.springframework.data.elasticsearch.repository.support.ElasticsearchRepositoryFactoryBean.afterPropertiesSet(ElasticsearchRepositoryFactoryBean.java:69) ~[com.sothawo.dataesnative.dataesnativeapplication:4.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1845) ~[na:na]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1782) ~[na:na]
+	... 31 common frames omitted
+----
+
+It seems that the custom implementation is not found, and then the default mechanism kicks in that tries to build a 
+query from the method name.
+
+I have added `@TypeHint(types = PersonCustomRepositoryImpl.class)` to the application class, with no success.
+
+== How to build the native application
+
+I build the image using the native image Maven plugin (https://github
+.com/spring-projects-experimental/spring-native/issues). For this I added the corresponding build plugin entry in 
+_pom.xml_.
+
+The application is built and then run with
+
+[source,shell]
+----
+./mvnw  -Pnative-image package
+./target/com.sothawo.dataesnative.dataesnativeapplication
+----
+
+Used JVM:
+
+[source,shell]
+----
+╰─➤  java -version                                                                                                                                                                                       130 ↵
+openjdk version "11.0.10" 2021-01-19
+OpenJDK Runtime Environment GraalVM CE 21.0.0.2 (build 11.0.10+8-jvmci-21.0-b06)
+OpenJDK 64-Bit Server VM GraalVM CE 21.0.0.2 (build 11.0.10+8-jvmci-21.0-b06, mixed mode, sharing)
+----

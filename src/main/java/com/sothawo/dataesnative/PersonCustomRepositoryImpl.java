@@ -11,12 +11,14 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
+import org.springframework.stereotype.Component;
 
 import static org.elasticsearch.search.aggregations.AggregationBuilders.*;
 
 /**
  * @author P.J. Meisch (pj.meisch@sothawo.com)
  */
+@Component
 public class PersonCustomRepositoryImpl implements PersonCustomRepository {
 
     private final ElasticsearchOperations operations;

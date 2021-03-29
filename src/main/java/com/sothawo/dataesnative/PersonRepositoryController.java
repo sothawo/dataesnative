@@ -1,6 +1,6 @@
 package com.sothawo.dataesnative;
 
-import com.devskiller.jfairy.Fairy;
+import com.github.javafaker.Faker;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/persons")
@@ -36,8 +39,7 @@ public class PersonRepositoryController {
     private static final Logger LOG = LoggerFactory.getLogger(PersonRepositoryController.class);
 
     private final PersonRepository personRepository;
-
-    Fairy fairy = Fairy.create(Locale.ENGLISH);
+    private final Faker faker = new Faker(Locale.GERMANY);
 
     public PersonRepositoryController(PersonRepository personRepository) {
         this.personRepository = personRepository;
@@ -47,7 +49,6 @@ public class PersonRepositoryController {
     public void create(@PathVariable("count") Long count) {
 
         personRepository.deleteAll();
-
 
         long maxId = count;
         long fromId = 1L;
@@ -64,14 +65,15 @@ public class PersonRepositoryController {
             fromId += 1000L;
         }
     }
-
     private Person createPerson(long id) {
         Person person = new Person();
-        com.devskiller.jfairy.producer.person.Person fairyPerson = fairy.person();
         person.setId(id);
-        person.setFirstName(fairyPerson.getFirstName());
-        person.setLastName(fairyPerson.getLastName());
-        person.setBirthDate(fairyPerson.getDateOfBirth());
+        person.setFirstName(faker.name().firstName());
+        person.setLastName(faker.name().lastName());
+        var birthday = faker.date().birthday();
+        var instant = Instant.ofEpochMilli(birthday.getTime());
+        var localDate = LocalDate.ofInstant(instant, ZoneId.of("UTC"));
+        person.setBirthDate(localDate);
         return person;
     }
 
@@ -80,9 +82,9 @@ public class PersonRepositoryController {
         return personRepository.save(person);
     }
 
-    @GetMapping("")
-    public Iterable<Person> allPersons() {
-        return personRepository.findAll(Pageable.unpaged());
+    @GetMapping
+    public Stream<Person> allPersons() {
+        return personRepository.findAllBy();
     }
 
     @GetMapping("/person/{id}")
@@ -92,7 +94,7 @@ public class PersonRepositoryController {
     }
 
     @GetMapping("/lastname/{name}")
-    public SearchHits<Person> lastName(@PathVariable("name") String name) {
+    public Stream<SearchHit<Person>> lastName(@PathVariable("name") String name) {
         return personRepository.findByLastName(name);
     }
 

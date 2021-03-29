@@ -30,10 +30,6 @@ public class Person implements Persistable<Long> {
     @Nullable
     private Long id;
 
-    @Nullable
-    @Version
-    Long version;
-
     @Field(type = FieldType.Text, fielddata = true)
     @Nullable
     private String lastName;
@@ -68,15 +64,6 @@ public class Person implements Persistable<Long> {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    @Nullable
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(@Nullable Long version) {
-        this.version = version;
     }
 
     @Nullable

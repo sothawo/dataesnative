@@ -19,11 +19,11 @@ import static org.elasticsearch.search.aggregations.AggregationBuilders.*;
  * @author P.J. Meisch (pj.meisch@sothawo.com)
  */
 @Component
-public class PersonCustomRepositoryImpl implements PersonCustomRepository {
+public class PersonRepositoryImpl implements PersonCustomRepository {
 
     private final ElasticsearchOperations operations;
 
-    public PersonCustomRepositoryImpl(ElasticsearchOperations operations) {
+    public PersonRepositoryImpl(ElasticsearchOperations operations) {
         this.operations = operations;
     }
 
